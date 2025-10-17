@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SchoolBoard — Gradebook & Student Portal (Demo)</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#4f46e5;--success:#10b981;--danger:#ef4444}
+    *{box-sizing:border-box;font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071028 0%,#071025 60%);color:#e6eef6}
+    .app{max-width:1100px;margin:24px auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 18px rgba(79,70,229,0.18)}
+    .brand h1{font-size:18px;margin:0}
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+    .dot-menu{position:relative}
+    .menu{position:absolute;right:0;top:44px;background:var(--card);padding:8px;border-radius:8px;min-width:180px;box-shadow:0 10px 30px rgba(2,6,23,0.6);display:none}
+    .menu.active{display:block}
+    .menu a{display:block;color:var(--muted);padding:8px;border-radius:6px;text-decoration:none}
+    .menu a:hover{background:rgba(255,255,255,0.03);color:#fff}
+    main{display:grid;grid-template-columns:300px 1fr;gap:18px;margin-top:18px}
+    @media (max-width:900px){main{grid-template-columns:1fr} .sidebar{order:2} .mainpane{order:1}}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .sidebar .profile{display:flex;gap:12px;align-items:center}
+    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ef9a9a,#f48fb1);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .nav{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+    .nav button{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:transparent;border:0;color:var(--muted);cursor:pointer}
+    .nav button.active{background:rgba(255,255,255,0.02);color:#fff}
+    .stat-row{display:flex;gap:8px;margin-top:12px}
+    .stat{flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);text-align:center}
+    .mainpane h2{margin:0 0 12px 0}
+    .gradebook table{width:100%;border-collapse:collapse}
+    .gradebook th,.gradebook td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .badge{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03);font-weight:600}
+    .assignments .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+    .message-list .msg{padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+    .search{display:flex;gap:8px}
+    input[type="search"],input[type="text"],select{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit}
+    .small{font-size:13px;color:var(--muted)}
+    .gpa{font-size:24px;font-weight:700}
+    .leaderboard .user{display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
+    .footer{opacity:0.6;font-size:13px;text-align:center;margin-top:18px}
+    /* simple modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .modal-bg.active{display:flex}
+    .modal{background:var(--card);padding:18px;border-radius:12px;max-width:700px;width:96%}
+    .row{display:flex;gap:8px}
+    .flex{flex:1}
+    .small-muted{font-size:13px;color:var(--muted)}
+    .file{display:flex;gap:8px;align-items:center}
+    .link{color:var(--accent);cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">SB</div>
+        <div>
+          <h1>SchoolBoard — Student Portal (demo)</h1>
+          <div class="small-muted">Gradebook • Assignments • Messages • Attendance</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="search">
+          <input id="globalSearch" type="search" placeholder="Search students, assignments..." />
+        </div>
+        <div class="dot-menu">
+          <button class="btn" id="dotBtn">⋮</button>
+          <div class="menu" id="menu">
+            <a id="openSettings">Settings</a>
+            <a id="openLeaderboard">Leaderboard</a>
+            <a id="exportData">Export data (JSON)</a>
+            <a id="resetDemo">Reset demo data</a>
+          </div>
+        </div>
+        <button class="btn" id="loginBtn">Login</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <div class="card">
+          <div class="profile">
+            <div class="avatar" id="avatar">A</div>
+            <div>
+              <div id="userName">Alex Student</div>
+              <div class="small-muted">Grade 9 • Student</div>
+            </div>
+          </div>
+
+          <div class="nav">
+            <button class="active" data-view="dashboard">Dashboard</button>
+            <button data-view="gradebook">Gradebook</button>
+            <button data-view="assignments">Assignments</button>
+            <button data-view="messages">Messages</button>
+            <button data-view="attendance">Attendance</button>
+            <button data-view="settings">Profile</button>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat">
+              <div class="small-muted">GPA</div>
+              <div class="gpa" id="gpa">3.8</div>
+            </div>
+            <div class="stat">
+              <div class="small-muted">Missing</div>
+              <div class="badge" id="missingCount">1</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card small-muted">
+          <strong>Quick Actions</strong>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+            <button class="btn" id="newAssignment">New Assignment</button>
+            <button class="btn" id="messageTeacher">Message Teacher</button>
+            <button class="btn" id="markPresent">Mark Present</button>
+          </div>
+        </div>
+
+      </aside>
+
+      <section class="mainpane">
+        <div id="viewArea">
+          <!-- Dashboard -->
+          <div class="card" id="dashboardView">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2>Dashboard</h2>
+              <div class="small-muted">Welcome back — review your recent activity</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 320px;gap:12px;margin-top:12px">
+              <div>
+                <div class="card gradebook">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong>Recent Grades</strong>
+                    <div class="small-muted">Semester 1</div>
+                  </div>
+                  <table id="recentGradesTable">
+                    <thead><tr><th>Class</th><th>Item</th><th>Score</th><th>Weight</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+
+                <div style="height:12px"></div>
+
+                <div class="card assignments">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong>Upcoming Assignments</strong>
+                    <div class="small-muted">Due soon</div>
+                  </div>
+                  <div id="upcomingList" style="margin-top:8px"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card">
+                  <strong>Messages</strong>
+                  <div id="messagePreview" style="margin-top:8px"></div>
+                </div>
+
+                <div style="height:12px"></div>
+
+                <div class="card leaderboard">
+                  <strong>Leaderboard (Top GPA)</strong>
+                  <div id="leaderboardList" style="margin-top:8px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gradebook -->
+          <div class="card" id="gradebookView" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2>Gradebook</h2>
+              <div>
+                <select id="filterClass"><option value="all">All classes</option></select>
+                <button class="btn" id="addGrade">Add Grade</button>
+              </div>
+            </div>
+
+            <div style="margin-top:12px">
+              <table id="gradebookTable" class="gradebook">
+                <thead><tr><th>Class</th><th>Assignment</th><th>Score</th><th>Out Of</th><th>Percent</th><th>Date</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Assignments -->
+          <div class="card" id="assignmentsView" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2>Assignments</h2>
+              <div>
+                <button class="btn" id="createAssignmentBtn">Create</button>
+              </div>
+            </div>
+
+            <div id="assignmentsList" style="margin-top:12px"></div>
+          </div>
+
+          <!-- Messages -->
+          <div class="card" id="messagesView" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2>Messages</h2>
+              <div>
+                <button class="btn" id="composeBtn">Compose</button>
+              </div>
+            </div>
+            <div id="messagesList" style="margin-top:12px"></div>
+          </div>
+
+          <!-- Attendance -->
+          <div class="card" id="attendanceView" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h2>Attendance</h2>
+              <div class="small-muted">Toggle presence for today</div>
+            </div>
+            <div style="margin-top:12px"><button class="btn" id="togglePresence">Mark Present</button></div>
+            <div style="margin-top:12px" id="attendanceHistory"></div>
+          </div>
+
+          <!-- Settings/Profile -->
+          <div class="card" id="settingsView" style="display:none">
+            <h2>Profile & Settings</h2>
+            <div style="margin-top:12px">
+              <label class="small-muted">Display name</label>
+              <input id="displayName" type="text" />
+            </div>
+            <div style="margin-top:8px">
+              <label class="small-muted">Role</label>
+              <select id="roleSelect"><option>Student</option><option>Parent</option><option>Teacher</option></select>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn" id="saveProfile">Save</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="footer">This is a demo portal inspired by common gradebook systems. Not affiliated with any vendor.</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal" id="modal">
+      <div id="modalContent"></div>
+      <div style="margin-top:12px;text-align:right"><button class="btn" id="closeModal">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+    // Demo single-file LMS
+    const demo = {
+      users:[{id:1,name:'Alex Student',role:'Student',gpa:3.8},{id:2,name:'Sam Teacher',role:'Teacher',gpa:0},{id:3,name:'Maya Parent',role:'Parent',gpa:0},{id:4,name:'Ibrahim',role:'Student',gpa:4.0}],
+      grades:[
+        {id:1,class:'Math',item:'Algebra Quiz',score:88,outOf:100,date:'2025-09-10'},
+        {id:2,class:'Science',item:'Lab Report',score:92,outOf:100,date:'2025-09-15'},
+        {id:3,class:'English',item:'Essay',score:74,outOf:100,date:'2025-09-20'},
+      ],
+      assignments:[
+        {id:1,title:'Geometry HW',class:'Math',due:'2025-10-20',status:'open'},
+        {id:2,title:'Photosynthesis Worksheet',class:'Science',due:'2025-10-22',status:'open'},
+      ],
+      messages:[
+        {id:1,from:'Ms. Smith',subject:'Project feedback',body:'Great job on the lab!',date:'2025-10-10'},
+        {id:2,from:'Counselor',subject:'Schedule review',body:'Can we meet next week?',date:'2025-10-08'}
+      ],
+      attendance:[]
+    }
+
+    // Local storage for persistence
+    function save(){localStorage.setItem('schoolboard_demo',JSON.stringify(demo))}
+    function loadDemo(){const d=localStorage.getItem('schoolboard_demo');if(d)Object.assign(demo,JSON.parse(d))}
+    loadDemo();
+
+    // Elements
+    const menuBtn=document.getElementById('dotBtn');
+    const menu=document.getElementById('menu');
+    menuBtn.addEventListener('click',e=>menu.classList.toggle('active'));
+    document.addEventListener('click',e=>{if(!menu.contains(e.target) && e.target!==menuBtn)menu.classList.remove('active')})
+
+    // Views
+    const views=['dashboard','gradebook','assignments','messages','attendance','settings'];
+    document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showView(btn.dataset.view)}))
+    function showView(v){views.forEach(x=>document.getElementById(x+(x==='dashboard'?'View':'View'))?.style&&(document.getElementById(x+'View').style.display=(x===v?'block':'none'))); if(v==='dashboard')renderDashboard(); if(v==='gradebook')renderGradebook(); if(v==='assignments')renderAssignments(); if(v==='messages')renderMessages(); if(v==='attendance')renderAttendance(); if(v==='settings')renderSettings()}
+
+    // Slight naming fix for ids
+    document.getElementById('dashboardView').id='dashboardView';
+
+    // Render helpers
+    function formatPercent(score,outOf){return ((score/outOf)*100).toFixed(1)+'%'}
+
+    function renderDashboard(){
+      const recentT=document.querySelector('#recentGradesTable tbody'); recentT.innerHTML='';
+      demo.grades.slice().reverse().slice(0,6).forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td>`;recentT.appendChild(tr)})
+
+      const up=document.getElementById('upcomingList'); up.innerHTML=''; demo.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div><strong>${a.title}</strong><div class="small-muted">${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button></div>`; up.appendChild(d)})
+
+      const mp=document.getElementById('messagePreview'); mp.innerHTML=''; demo.messages.slice().reverse().slice(0,3).forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>${m.subject}</strong><div class="small-muted">From ${m.from} • ${m.date}</div><div>${m.body}</div>`; mp.appendChild(d)})
+
+      const lb=document.getElementById('leaderboardList'); lb.innerHTML=''; demo.users.filter(u=>u.gpa).sort((a,b)=>b.gpa-a.gpa).slice(0,5).forEach(u=>{const el=document.createElement('div');el.className='user';el.innerHTML=`<div>${u.name}</div><div>${u.gpa.toFixed(2)}</div>`; lb.appendChild(el)})
+
+      updateSummaryStats();
+    }
+
+    function renderGradebook(){
+      const tb=document.querySelector('#gradebookTable tbody'); tb.innerHTML=''; demo.grades.forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td><td>${formatPercent(g.score,g.outOf)}</td><td>${g.date}</td>`;tb.appendChild(tr)})
+      const filter=document.getElementById('filterClass'); filter.innerHTML='<option value="all">All classes</option>'; [...new Set(demo.grades.map(g=>g.class).concat(demo.assignments.map(a=>a.class)))].forEach(c=>{const opt=document.createElement('option');opt.value=c;opt.textContent=c;filter.appendChild(opt)})
+    }
+
+    function renderAssignments(){
+      const list=document.getElementById('assignmentsList'); list.innerHTML=''; demo.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.style.display='flex';d.style.justifyContent='space-between';d.style.alignItems='center';d.innerHTML=`<div><strong>${a.title}</strong><div class='small-muted'>${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button></div>`; list.appendChild(d)})
+    }
+
+    function renderMessages(){
+      const list=document.getElementById('messagesList'); list.innerHTML=''; demo.messages.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${m.subject}</strong><div class='small-muted'>From ${m.from} • ${m.date}</div></div><div><button class='btn' onclick='openMessage(${m.id})'>Open</button></div></div><div style='margin-top:8px'>${m.body}</div>`; list.appendChild(d)})
+    }
+
+    function renderAttendance(){
+      const el=document.getElementById('attendanceHistory'); el.innerHTML=''; if(demo.attendance.length===0)el.innerHTML='<div class="small-muted">No attendance records yet</div>';
+      demo.attendance.slice().reverse().forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div>${a.date} • ${a.status}</div>`; el.appendChild(d)})
+    }
+
+    function renderSettings(){document.getElementById('displayName').value=demo.users[0].name; document.getElementById('roleSelect').value=demo.users[0].role}
+
+    function updateSummaryStats(){document.getElementById('gpa').textContent=demo.users[0].gpa.toFixed(2); const missing=demo.assignments.filter(a=>a.status!=='submitted').length; document.getElementById('missingCount').textContent=missing}
+
+    // Actions
+    window.submitAssignment=function(id){const a=demo.assignments.find(x=>x.id===id); if(!a) return; a.status='submitted'; demo.messages.push({id:Date.now(),from:'System',subject:'Assignment submitted',body:`${a.title} submitted.`,date:new Date().toISOString().slice(0,10)}); save(); renderDashboard(); alert('Submitted: '+a.title)}
+
+    window.openMessage=function(id){const m=demo.messages.find(x=>x.id===id); if(!m) return; openModal(`<h3>${m.subject}</h3><div class='small-muted'>From ${m.from} • ${m.date}</div><div style='margin-top:12px'>${m.body}</div>`)}
+
+    // Modal helpers
+    function openModal(html){document.getElementById('modalContent').innerHTML=html; document.getElementById('modalBg').classList.add('active')}
+    document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('modalBg').classList.remove('active'))
+
+    // Menu actions
+    document.getElementById('openSettings').addEventListener('click',()=>{document.querySelectorAll('.nav button')[5].click(); menu.classList.remove('active')})
+    document.getElementById('openLeaderboard').addEventListener('click',()=>{openModal('<h3>Leaderboard</h3>'+document.getElementById('leaderboardList').innerHTML);menu.classList.remove('active')})
+    document.getElementById('exportData').addEventListener('click',()=>{const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(demo,null,2));a.download='schoolboard-demo.json';a.click();menu.classList.remove('active')})
+    document.getElementById('resetDemo').addEventListener('click',()=>{if(confirm('Reset demo data?')){localStorage.removeItem('schoolboard_demo');location.reload()}})
+
+    // Quick actions
+    document.getElementById('newAssignment').addEventListener('click',()=>{openModal(`<h3>Create Assignment</h3><div class='row' style='margin-top:8px'><input id='naTitle' placeholder='Title' class='flex'/></div><div class='row' style='margin-top:8px'><input id='naClass' placeholder='Class' /></div><div style='margin-top:8px' class='small-muted'>Due date (YYYY-MM-DD)</div><div style='margin-top:8px'><input id='naDue' placeholder='2025-10-20' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='createAssignConfirm'>Create</button></div>`); document.getElementById('createAssignConfirm').addEventListener('click',()=>{const t=document.getElementById('naTitle').value||'Untitled';const c=document.getElementById('naClass').value||'General';const d=document.getElementById('naDue').value||new Date().toISOString().slice(0,10);demo.assignments.push({id:Date.now(),title:t,class:c,due:d,status:'open'});save();document.getElementById('modalBg').classList.remove('active');renderAssignments();renderDashboard()})})
+
+    document.getElementById('messageTeacher').addEventListener('click',()=>{openModal(`<h3>New Message</h3><div style='margin-top:8px'><input id='mSub' placeholder='Subject' class='flex' /></div><div style='margin-top:8px'><textarea id='mBody' rows=6 style='width:100%;background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit'></textarea></div><div style='margin-top:8px;text-align:right'><button class='btn' id='sendMsg'>Send</button></div>`); document.getElementById('sendMsg').addEventListener('click',()=>{const s=document.getElementById('mSub').value||'No subject';const b=document.getElementById('mBody').value||'';demo.messages.push({id:Date.now(),from:demo.users[0].name,subject:s,body:b,date:new Date().toISOString().slice(0,10)});save();document.getElementById('modalBg').classList.remove('active');renderMessages();renderDashboard()})})
+
+    // Attendance
+    document.getElementById('markPresent').addEventListener('click',()=>{demo.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});save();renderAttendance();renderDashboard()})
+    document.getElementById('togglePresence').addEventListener('click',()=>{demo.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});save();renderAttendance();renderDashboard();alert('Marked present for today')})
+
+    // Compose & create
+    document.getElementById('composeBtn').addEventListener('click',()=>document.getElementById('messageTeacher').click());
+    document.getElementById('createAssignmentBtn').addEventListener('click',()=>document.getElementById('newAssignment').click());
+
+    // Profile
+    document.getElementById('saveProfile').addEventListener('click',()=>{demo.users[0].name=document.getElementById('displayName').value||demo.users[0].name;demo.users[0].role=document.getElementById('roleSelect').value;save();alert('Profile saved');renderDashboard()})
+
+    // Login (mock)
+    document.getElementById('loginBtn').addEventListener('click',()=>{openModal(`<h3>Demo Login</h3><div style='margin-top:8px'><input id='loginName' placeholder='Name' class='flex' /></div><div style='margin-top:8px'><select id='loginRole'><option>Student</option><option>Teacher</option><option>Parent</option></select></div><div style='margin-top:12px;text-align:right'><button class='btn' id='doLogin'>Enter</button></div>`);document.getElementById('doLogin').addEventListener('click',()=>{const n=document.getElementById('loginName').value||'Alex Student';const r=document.getElementById('loginRole').value;demo.users[0].name=n;demo.users[0].role=r;document.getElementById('avatar').textContent=n.split(' ').map(s=>s[0]).slice(0,2).join('');save();document.getElementById('modalBg').classList.remove('active');renderDashboard();alert('Logged in as '+n)})})
+
+    // Search
+    document.getElementById('globalSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase(); if(q.length<1) return; const foundGrades=demo.grades.filter(g=>g.class.toLowerCase().includes(q)||g.item.toLowerCase().includes(q)); openModal('<h3>Search results</h3>'+foundGrades.map(g=>`<div class="small-muted">${g.class} • ${g.item} • ${formatPercent(g.score,g.outOf)}</div>`).join(''))})
+
+    // Init
+    renderDashboard(); renderGradebook(); renderAssignments(); renderMessages(); renderAttendance();
+  </script>
+</body>
+</html>
