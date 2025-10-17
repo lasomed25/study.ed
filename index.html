@@ -3,80 +3,94 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SchoolBoard — Gradebook & Student Portal (Demo)</title>
+  <title>SchoolBoard — LMS (Demo) — Light / Dark + Teacher Accounts</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#4f46e5;--success:#10b981;--danger:#ef4444}
+    /* Light & Dark variables */
+    :root{--bg:#f6f8fb;--card:#ffffff;--muted:#475569;--accent:#0b5cff;--success:#16a34a;--danger:#ef4444;--glass:rgba(15,23,42,0.04)}
+    [data-theme='dark']{--bg:#071028;--card:#0b1220;--muted:#9aa4b2;--accent:#7c5cff;--success:#10b981;--danger:#ef4444;--glass:rgba(255,255,255,0.03)}
+
     *{box-sizing:border-box;font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071028 0%,#071025 60%);color:#e6eef6}
-    .app{max-width:1100px;margin:24px auto;padding:18px}
-    header{display:flex;align-items:center;justify-content:space-between}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#e6eef6 40%);color:var(--muted);transition:background .25s,color .25s}
+    [data-theme='dark'] body{background:linear-gradient(180deg,var(--bg),#071023 60%)}
+    .app{max-width:1200px;margin:20px auto;padding:16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 18px rgba(79,70,229,0.18)}
-    .brand h1{font-size:18px;margin:0}
-    .controls{display:flex;gap:10px;align-items:center}
-    .btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;letter-spacing:0.6px;box-shadow:0 8px 30px rgba(11,92,255,0.12)}
+    .brand h1{font-size:18px;margin:0;color:inherit}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:10px;color:inherit;cursor:pointer}
+    [data-theme='dark'] .btn{border:1px solid rgba(255,255,255,0.04)}
     .dot-menu{position:relative}
-    .menu{position:absolute;right:0;top:44px;background:var(--card);padding:8px;border-radius:8px;min-width:180px;box-shadow:0 10px 30px rgba(2,6,23,0.6);display:none}
+    .menu{position:absolute;right:0;top:48px;background:var(--card);padding:8px;border-radius:10px;min-width:220px;box-shadow:0 12px 36px rgba(2,6,23,0.24);display:none;border:1px solid rgba(0,0,0,0.06)}
     .menu.active{display:block}
     .menu a{display:block;color:var(--muted);padding:8px;border-radius:6px;text-decoration:none}
-    .menu a:hover{background:rgba(255,255,255,0.03);color:#fff}
-    main{display:grid;grid-template-columns:300px 1fr;gap:18px;margin-top:18px}
+    .menu a:hover{background:var(--glass);color:var(--accent)}
+    main{display:grid;grid-template-columns:260px 1fr;gap:18px;margin-top:18px}
     @media (max-width:900px){main{grid-template-columns:1fr} .sidebar{order:2} .mainpane{order:1}}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .card{background:var(--card);padding:14px;border-radius:12px;border:1px solid rgba(0,0,0,0.04)}
+    [data-theme='dark'] .card{border:1px solid rgba(255,255,255,0.03)}
     .sidebar .profile{display:flex;gap:12px;align-items:center}
-    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ef9a9a,#f48fb1);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .nav{margin-top:16px;display:flex;flex-direction:column;gap:8px}
-    .nav button{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:transparent;border:0;color:var(--muted);cursor:pointer}
-    .nav button.active{background:rgba(255,255,255,0.02);color:#fff}
+    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ef9a9a,#f48fb1);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+    .nav{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+    .nav button{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:transparent;border:0;color:var(--muted);cursor:pointer}
+    .nav button.active{background:var(--glass);color:var(--accent);font-weight:600}
     .stat-row{display:flex;gap:8px;margin-top:12px}
-    .stat{flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);text-align:center}
-    .mainpane h2{margin:0 0 12px 0}
-    .gradebook table{width:100%;border-collapse:collapse}
-    .gradebook th,.gradebook td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03)}
-    .badge{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03);font-weight:600}
-    .assignments .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
-    .message-list .msg{padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+    .stat{flex:1;padding:10px;border-radius:10px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.01));text-align:center}
+    .mainpane h2{margin:0 0 12px 0;color:inherit}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px solid rgba(0,0,0,0.05)}
+    [data-theme='dark'] th, [data-theme='dark'] td{border-bottom:1px solid rgba(255,255,255,0.03)}
+    .badge{padding:6px 8px;border-radius:10px;background:var(--glass);font-weight:600}
+    .assignments .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.01))}
+    .message-list .msg{padding:10px;border-radius:8px;margin-bottom:8px;background:var(--glass)}
     .search{display:flex;gap:8px}
-    input[type="search"],input[type="text"],select{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit}
+    input[type="search"],input[type="text"],select,textarea{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px;border-radius:8px;color:inherit}
+    [data-theme='dark'] input, [data-theme='dark'] textarea{border:1px solid rgba(255,255,255,0.04)}
     .small{font-size:13px;color:var(--muted)}
-    .gpa{font-size:24px;font-weight:700}
-    .leaderboard .user{display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
-    .footer{opacity:0.6;font-size:13px;text-align:center;margin-top:18px}
-    /* simple modal */
-    .modal-bg{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .gpa{font-size:22px;font-weight:700;color:var(--accent)}
+    .leaderboard .user{display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:var(--glass);margin-bottom:8px}
+    .footer{opacity:0.9;font-size:13px;text-align:center;margin-top:18px;color:var(--muted)}
+    .modal-bg{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
     .modal-bg.active{display:flex}
-    .modal{background:var(--card);padding:18px;border-radius:12px;max-width:700px;width:96%}
+    .modal{background:var(--card);padding:18px;border-radius:12px;max-width:720px;width:96%;border:1px solid rgba(0,0,0,0.06)}
     .row{display:flex;gap:8px}
     .flex{flex:1}
     .small-muted{font-size:13px;color:var(--muted)}
     .file{display:flex;gap:8px;align-items:center}
     .link{color:var(--accent);cursor:pointer}
+    .accent{color:var(--accent)}
   </style>
 </head>
-<body>
+<body data-theme="dark">
   <div class="app">
     <header>
       <div class="brand">
-        <div class="logo">SB</div>
+        <div class="logo">JU</div>
         <div>
-          <h1>SchoolBoard — Student Portal (demo)</h1>
-          <div class="small-muted">Gradebook • Assignments • Messages • Attendance</div>
+          <h1>SchoolBoard — Jupiter-style Portal (demo)</h1>
+          <div class="small-muted">Gradebook • Assignments • Messaging • Attendance</div>
         </div>
       </div>
+
       <div class="controls">
         <div class="search">
           <input id="globalSearch" type="search" placeholder="Search students, assignments..." />
         </div>
-        <div class="dot-menu">
-          <button class="btn" id="dotBtn">⋮</button>
-          <div class="menu" id="menu">
-            <a id="openSettings">Settings</a>
-            <a id="openLeaderboard">Leaderboard</a>
-            <a id="exportData">Export data (JSON)</a>
-            <a id="resetDemo">Reset demo data</a>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" id="themeToggle">Toggle Light</button>
+          <div class="dot-menu">
+            <button class="btn" id="dotBtn">⋮</button>
+            <div class="menu" id="menu">
+              <a id="openSettings">Profile</a>
+              <a id="openLeaderboard">Leaderboard</a>
+              <a id="exportData">Export data (JSON)</a>
+              <a id="clearAll">Clear all history</a>
+              <a id="discordLink">Open Discord</a>
+            </div>
           </div>
+          <button class="btn" id="loginBtn">Login</button>
         </div>
-        <button class="btn" id="loginBtn">Login</button>
       </div>
     </header>
 
@@ -87,17 +101,18 @@
             <div class="avatar" id="avatar">A</div>
             <div>
               <div id="userName">Alex Student</div>
-              <div class="small-muted">Grade 9 • Student</div>
+              <div class="small-muted" id="userRole">Grade 9 • Student</div>
             </div>
           </div>
 
-          <div class="nav">
+          <div class="nav" style="margin-top:14px">
             <button class="active" data-view="dashboard">Dashboard</button>
             <button data-view="gradebook">Gradebook</button>
             <button data-view="assignments">Assignments</button>
             <button data-view="messages">Messages</button>
             <button data-view="attendance">Attendance</button>
-            <button data-view="settings">Profile</button>
+            <button data-view="teacherPanel">Teacher Panel</button>
+            <button data-view="settings">Settings</button>
           </div>
 
           <div class="stat-row">
@@ -118,7 +133,7 @@
           <strong>Quick Actions</strong>
           <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
             <button class="btn" id="newAssignment">New Assignment</button>
-            <button class="btn" id="messageTeacher">Message Teacher</button>
+            <button class="btn" id="messageTeacher">New Message</button>
             <button class="btn" id="markPresent">Mark Present</button>
           </div>
         </div>
@@ -127,11 +142,12 @@
 
       <section class="mainpane">
         <div id="viewArea">
+
           <!-- Dashboard -->
           <div class="card" id="dashboardView">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <h2>Dashboard</h2>
-              <div class="small-muted">Welcome back — review your recent activity</div>
+              <div class="small-muted">Live activity & recent updates</div>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 320px;gap:12px;margin-top:12px">
@@ -180,13 +196,13 @@
               <h2>Gradebook</h2>
               <div>
                 <select id="filterClass"><option value="all">All classes</option></select>
-                <button class="btn" id="addGrade">Add Grade</button>
+                <button class="btn" id="addGrade">Add Grade (Teacher)</button>
               </div>
             </div>
 
             <div style="margin-top:12px">
               <table id="gradebookTable" class="gradebook">
-                <thead><tr><th>Class</th><th>Assignment</th><th>Score</th><th>Out Of</th><th>Percent</th><th>Date</th></tr></thead>
+                <thead><tr><th>Class</th><th>Assignment</th><th>Score</th><th>Out Of</th><th>Percent</th><th>Date</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -225,6 +241,24 @@
             <div style="margin-top:12px" id="attendanceHistory"></div>
           </div>
 
+          <!-- Teacher Panel -->
+          <div class="card" id="teacherPanelView" style="display:none">
+            <h2>Teacher Panel</h2>
+            <div class="small-muted">Only accessible after teacher login</div>
+            <div style="margin-top:12px">
+              <button class="btn" id="teacherCreateAccount">Create Teacher Account</button>
+              <button class="btn" id="teacherLoginBtn">Teacher Login</button>
+            </div>
+
+            <div id="teacherControls" style="margin-top:12px;display:none">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button class="btn" id="teacherNewGrade">Add Grade for Student</button>
+                <button class="btn" id="teacherEditAssignments">Edit Assignments</button>
+              </div>
+              <div style="margin-top:12px" id="teacherLiveFeed"></div>
+            </div>
+          </div>
+
           <!-- Settings/Profile -->
           <div class="card" id="settingsView" style="display:none">
             <h2>Profile & Settings</h2>
@@ -243,7 +277,7 @@
 
         </div>
 
-        <div class="footer">This is a demo portal inspired by common gradebook systems. Not affiliated with any vendor.</div>
+        <div class="footer">This is a demo portal inspired by Jupiter Ed — <span class="link" id="discordFooter">Join our Discord</span></div>
       </section>
     </main>
   </div>
@@ -257,29 +291,26 @@
   </div>
 
   <script>
-    // Demo single-file LMS
-    const demo = {
-      users:[{id:1,name:'Alex Student',role:'Student',gpa:3.8},{id:2,name:'Sam Teacher',role:'Teacher',gpa:0},{id:3,name:'Maya Parent',role:'Parent',gpa:0},{id:4,name:'Ibrahim',role:'Student',gpa:4.0}],
-      grades:[
-        {id:1,class:'Math',item:'Algebra Quiz',score:88,outOf:100,date:'2025-09-10'},
-        {id:2,class:'Science',item:'Lab Report',score:92,outOf:100,date:'2025-09-15'},
-        {id:3,class:'English',item:'Essay',score:74,outOf:100,date:'2025-09-20'},
-      ],
-      assignments:[
-        {id:1,title:'Geometry HW',class:'Math',due:'2025-10-20',status:'open'},
-        {id:2,title:'Photosynthesis Worksheet',class:'Science',due:'2025-10-22',status:'open'},
-      ],
-      messages:[
-        {id:1,from:'Ms. Smith',subject:'Project feedback',body:'Great job on the lab!',date:'2025-10-10'},
-        {id:2,from:'Counselor',subject:'Schedule review',body:'Can we meet next week?',date:'2025-10-08'}
-      ],
-      attendance:[]
+    // Demo enhanced LMS with theme, teacher accounts, editable assignments, realtime-like updates (via storage events)
+    const STORAGE_KEY = 'schoolboard_demo_v2';
+
+    // default demo state
+    const defaultState = {
+      users:[{id:1,name:'Alex Student',role:'Student',gpa:3.8},{id:2,name:'Ibrahim',role:'Student',gpa:4.0}],
+      teachers:[{id:100,username:'teacher1',display:'Ms. Smith',password:'pass123'}],
+      grades:[{id:1,class:'Math',item:'Algebra Quiz',score:88,outOf:100,date:'2025-09-10',studentId:1}],
+      assignments:[{id:1,title:'Geometry HW',class:'Math',due:'2025-10-20',status:'open'},{id:2,title:'Photosynthesis Worksheet',class:'Science',due:'2025-10-22',status:'open'}],
+      messages:[{id:1,from:'Ms. Smith',subject:'Project feedback',body:'Great job on the lab!',date:'2025-10-10'}],
+      attendance:[],
+      currentUserId:1, // default logged-in student
+      theme:'dark'
     }
 
-    // Local storage for persistence
-    function save(){localStorage.setItem('schoolboard_demo',JSON.stringify(demo))}
-    function loadDemo(){const d=localStorage.getItem('schoolboard_demo');if(d)Object.assign(demo,JSON.parse(d))}
-    loadDemo();
+    // load/save
+    function loadState(){const raw=localStorage.getItem(STORAGE_KEY);if(!raw){localStorage.setItem(STORAGE_KEY,JSON.stringify(defaultState));return JSON.parse(JSON.stringify(defaultState))} try{return JSON.parse(raw)}catch(e){localStorage.setItem(STORAGE_KEY,JSON.stringify(defaultState));return JSON.parse(JSON.stringify(defaultState))}}
+    function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+
+    let state = loadState();
 
     // Elements
     const menuBtn=document.getElementById('dotBtn');
@@ -288,90 +319,150 @@
     document.addEventListener('click',e=>{if(!menu.contains(e.target) && e.target!==menuBtn)menu.classList.remove('active')})
 
     // Views
-    const views=['dashboard','gradebook','assignments','messages','attendance','settings'];
+    const views=['dashboard','gradebook','assignments','messages','attendance','teacherPanel','settings'];
     document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showView(btn.dataset.view)}))
-    function showView(v){views.forEach(x=>document.getElementById(x+(x==='dashboard'?'View':'View'))?.style&&(document.getElementById(x+'View').style.display=(x===v?'block':'none'))); if(v==='dashboard')renderDashboard(); if(v==='gradebook')renderGradebook(); if(v==='assignments')renderAssignments(); if(v==='messages')renderMessages(); if(v==='attendance')renderAttendance(); if(v==='settings')renderSettings()}
+    function showView(v){views.forEach(x=>{const el=document.getElementById(x+(x==='dashboard'?'View':'View')); if(el) el.style.display=(x===v?'block':'none')}); if(v==='dashboard')renderDashboard(); if(v==='gradebook')renderGradebook(); if(v==='assignments')renderAssignments(); if(v==='messages')renderMessages(); if(v==='attendance')renderAttendance(); if(v==='teacherPanel')renderTeacherPanel(); if(v==='settings')renderSettings();}
 
-    // Slight naming fix for ids
-    document.getElementById('dashboardView').id='dashboardView';
+    // theme
+    const body = document.body;
+    function applyTheme(){body.setAttribute('data-theme', state.theme); document.getElementById('themeToggle').textContent = state.theme==='dark' ? 'Toggle Light' : 'Toggle Dark'}
+    document.getElementById('themeToggle').addEventListener('click',()=>{state.theme = state.theme==='dark' ? 'light' : 'dark'; applyTheme(); saveState(); sendLiveUpdate('theme')})
+    applyTheme();
 
-    // Render helpers
+    // render helpers
     function formatPercent(score,outOf){return ((score/outOf)*100).toFixed(1)+'%'}
 
     function renderDashboard(){
       const recentT=document.querySelector('#recentGradesTable tbody'); recentT.innerHTML='';
-      demo.grades.slice().reverse().slice(0,6).forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td>`;recentT.appendChild(tr)})
+      (state.grades.slice().reverse().slice(0,8)).forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td>`;recentT.appendChild(tr)})
 
-      const up=document.getElementById('upcomingList'); up.innerHTML=''; demo.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div><strong>${a.title}</strong><div class="small-muted">${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button></div>`; up.appendChild(d)})
+      const up=document.getElementById('upcomingList'); up.innerHTML=''; state.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div><strong>${a.title}</strong><div class="small-muted">${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button> <button class='btn' onclick='editAssignment(${a.id})'>Edit</button></div>`; up.appendChild(d)})
 
-      const mp=document.getElementById('messagePreview'); mp.innerHTML=''; demo.messages.slice().reverse().slice(0,3).forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>${m.subject}</strong><div class="small-muted">From ${m.from} • ${m.date}</div><div>${m.body}</div>`; mp.appendChild(d)})
+      const mp=document.getElementById('messagePreview'); mp.innerHTML=''; state.messages.slice().reverse().slice(0,3).forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>${m.subject}</strong><div class="small-muted">From ${m.from} • ${m.date}</div><div>${m.body}</div>`; mp.appendChild(d)})
 
-      const lb=document.getElementById('leaderboardList'); lb.innerHTML=''; demo.users.filter(u=>u.gpa).sort((a,b)=>b.gpa-a.gpa).slice(0,5).forEach(u=>{const el=document.createElement('div');el.className='user';el.innerHTML=`<div>${u.name}</div><div>${u.gpa.toFixed(2)}</div>`; lb.appendChild(el)})
+      const lb=document.getElementById('leaderboardList'); lb.innerHTML=''; state.usersWithGPA = state.usersWithGPA || (()=>{ /* compute from users in state */ return []})();
+      // compute current GPAs from students array
+      const students = state.users || [{id:1,name:'Alex Student',gpa:3.8}];
+      // fallback
+      const usersForLeaderboard = state.users || state.usersFallback || state.users = (state.users || [{id:1,name:'Alex Student',gpa:3.8}]);
+      // if users are in state (students), use them
+      (usersForLeaderboard.filter(u=>u.gpa).sort((a,b)=>b.gpa-a.gpa).slice(0,6)).forEach(u=>{const el=document.createElement('div');el.className='user';el.innerHTML=`<div>${u.name}</div><div>${u.gpa.toFixed(2)}</div>`; lb.appendChild(el)})
 
       updateSummaryStats();
     }
 
     function renderGradebook(){
-      const tb=document.querySelector('#gradebookTable tbody'); tb.innerHTML=''; demo.grades.forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td><td>${formatPercent(g.score,g.outOf)}</td><td>${g.date}</td>`;tb.appendChild(tr)})
-      const filter=document.getElementById('filterClass'); filter.innerHTML='<option value="all">All classes</option>'; [...new Set(demo.grades.map(g=>g.class).concat(demo.assignments.map(a=>a.class)))].forEach(c=>{const opt=document.createElement('option');opt.value=c;opt.textContent=c;filter.appendChild(opt)})
+      const tb=document.querySelector('#gradebookTable tbody'); tb.innerHTML=''; state.grades.forEach(g=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${g.class}</td><td>${g.item}</td><td>${g.score}</td><td>${g.outOf}</td><td>${formatPercent(g.score,g.outOf)}</td><td>${g.date}</td><td>${teacherActionsForGrade(g.id)}</td>`;tb.appendChild(tr)})
+      const filter=document.getElementById('filterClass'); filter.innerHTML='<option value="all">All classes</option>'; [...new Set(state.grades.map(g=>g.class).concat(state.assignments.map(a=>a.class)))].forEach(c=>{const opt=document.createElement('option');opt.value=c;opt.textContent=c;filter.appendChild(opt)})
     }
 
+    function teacherActionsForGrade(id){return `<button class='btn' onclick='editGrade(${id})'>Edit</button> <button class='btn' onclick='deleteGrade(${id})'>Delete</button>`}
+
     function renderAssignments(){
-      const list=document.getElementById('assignmentsList'); list.innerHTML=''; demo.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.style.display='flex';d.style.justifyContent='space-between';d.style.alignItems='center';d.innerHTML=`<div><strong>${a.title}</strong><div class='small-muted'>${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button></div>`; list.appendChild(d)})
+      const list=document.getElementById('assignmentsList'); list.innerHTML=''; state.assignments.forEach(a=>{const d=document.createElement('div');d.className='item';d.style.display='flex';d.style.justifyContent='space-between';d.style.alignItems='center';d.innerHTML=`<div><strong>${a.title}</strong><div class='small-muted'>${a.class} • due ${a.due}</div></div><div><button class='btn' onclick='submitAssignment(${a.id})'>Submit</button> <button class='btn' onclick='editAssignment(${a.id})'>Edit</button></div>`; list.appendChild(d)})
     }
 
     function renderMessages(){
-      const list=document.getElementById('messagesList'); list.innerHTML=''; demo.messages.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${m.subject}</strong><div class='small-muted'>From ${m.from} • ${m.date}</div></div><div><button class='btn' onclick='openMessage(${m.id})'>Open</button></div></div><div style='margin-top:8px'>${m.body}</div>`; list.appendChild(d)})
+      const list=document.getElementById('messagesList'); list.innerHTML=''; state.messages.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='msg';d.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${m.subject}</strong><div class='small-muted'>From ${m.from} • ${m.date}</div></div><div><button class='btn' onclick='openMessage(${m.id})'>Open</button></div></div><div style='margin-top:8px'>${m.body}</div>`; list.appendChild(d)})
     }
 
     function renderAttendance(){
-      const el=document.getElementById('attendanceHistory'); el.innerHTML=''; if(demo.attendance.length===0)el.innerHTML='<div class="small-muted">No attendance records yet</div>';
-      demo.attendance.slice().reverse().forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div>${a.date} • ${a.status}</div>`; el.appendChild(d)})
+      const el=document.getElementById('attendanceHistory'); el.innerHTML=''; if(state.attendance.length===0)el.innerHTML='<div class="small-muted">No attendance records yet</div>';
+      state.attendance.slice().reverse().forEach(a=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div>${a.date} • ${a.status}</div>`; el.appendChild(d)})
     }
 
-    function renderSettings(){document.getElementById('displayName').value=demo.users[0].name; document.getElementById('roleSelect').value=demo.users[0].role}
+    function renderTeacherPanel(){
+      const panel = document.getElementById('teacherPanelView');
+      const controls = document.getElementById('teacherControls');
+      // show controls only if teacher logged in
+      if(state.currentTeacher){controls.style.display='block'; document.getElementById('teacherLiveFeed').innerHTML=`<div class='small-muted'>Teacher: ${state.currentTeacher.display}</div>`} else {controls.style.display='none'}
+    }
 
-    function updateSummaryStats(){document.getElementById('gpa').textContent=demo.users[0].gpa.toFixed(2); const missing=demo.assignments.filter(a=>a.status!=='submitted').length; document.getElementById('missingCount').textContent=missing}
+    function renderSettings(){document.getElementById('displayName').value=(state.users && state.users[0]&&state.users[0].name) || 'Alex Student'; document.getElementById('roleSelect').value='Student'}
+
+    function updateSummaryStats(){document.getElementById('gpa').textContent=(state.users && state.users[0] && state.users[0].gpa ? state.users[0].gpa.toFixed(2) : 'N/A'); const missing=state.assignments.filter(a=>a.status!=='submitted').length; document.getElementById('missingCount').textContent=missing}
 
     // Actions
-    window.submitAssignment=function(id){const a=demo.assignments.find(x=>x.id===id); if(!a) return; a.status='submitted'; demo.messages.push({id:Date.now(),from:'System',subject:'Assignment submitted',body:`${a.title} submitted.`,date:new Date().toISOString().slice(0,10)}); save(); renderDashboard(); alert('Submitted: '+a.title)}
+    window.submitAssignment=function(id){const a=state.assignments.find(x=>x.id===id); if(!a) return; a.status='submitted'; state.messages.push({id:Date.now(),from:'System',subject:'Assignment submitted',body:`${a.title} submitted.`,date:new Date().toISOString().slice(0,10)}); saveState(); sendLiveUpdate('assignment_submitted'); renderDashboard(); alert('Submitted: '+a.title)}
 
-    window.openMessage=function(id){const m=demo.messages.find(x=>x.id===id); if(!m) return; openModal(`<h3>${m.subject}</h3><div class='small-muted'>From ${m.from} • ${m.date}</div><div style='margin-top:12px'>${m.body}</div>`)}
+    window.openMessage=function(id){const m=state.messages.find(x=>x.id===id); if(!m) return; openModal(`<h3>${m.subject}</h3><div class='small-muted'>From ${m.from} • ${m.date}</div><div style='margin-top:12px'>${m.body}</div>`)}
+
+    window.editAssignment=function(id){const a=state.assignments.find(x=>x.id===id); if(!a) return; openModal(`<h3>Edit Assignment</h3><div class='row' style='margin-top:8px'><input id='editTitle' class='flex' value="${escapeHtml(a.title)}"/></div><div style='margin-top:8px'><input id='editClass' value="${escapeHtml(a.class)}"/></div><div style='margin-top:8px'><input id='editDue' value="${a.due}"/></div><div style='margin-top:12px;text-align:right'><button class='btn' id='saveEditAssign'>Save</button></div>`); document.getElementById('saveEditAssign').addEventListener('click',()=>{a.title=document.getElementById('editTitle').value||a.title;a.class=document.getElementById('editClass').value||a.class;a.due=document.getElementById('editDue').value||a.due;saveState(); sendLiveUpdate('assignment_edited'); document.getElementById('modalBg').classList.remove('active'); renderAssignments(); renderDashboard()})}
+
+    // Grade editing
+    window.editGrade=function(id){const g=state.grades.find(x=>x.id===id); if(!g) return; openModal(`<h3>Edit Grade</h3><div style='margin-top:8px'><input id='editScore' value='${g.score}' /></div><div style='margin-top:8px'><input id='editOutOf' value='${g.outOf}' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='saveEditGrade'>Save</button></div>`); document.getElementById('saveEditGrade').addEventListener('click',()=>{g.score=parseFloat(document.getElementById('editScore').value)||g.score; g.outOf=parseFloat(document.getElementById('editOutOf').value)||g.outOf; saveState(); sendLiveUpdate('grade_edited'); document.getElementById('modalBg').classList.remove('active'); renderGradebook()})}
+    window.deleteGrade=function(id){if(!confirm('Delete grade?')) return; state.grades=state.grades.filter(g=>g.id!==id); saveState(); sendLiveUpdate('grade_deleted'); renderGradebook()}
 
     // Modal helpers
     function openModal(html){document.getElementById('modalContent').innerHTML=html; document.getElementById('modalBg').classList.add('active')}
     document.getElementById('closeModal').addEventListener('click',()=>document.getElementById('modalBg').classList.remove('active'))
 
     // Menu actions
-    document.getElementById('openSettings').addEventListener('click',()=>{document.querySelectorAll('.nav button')[5].click(); menu.classList.remove('active')})
+    document.getElementById('openSettings').addEventListener('click',()=>{document.querySelectorAll('.nav button')[6].click(); menu.classList.remove('active')})
     document.getElementById('openLeaderboard').addEventListener('click',()=>{openModal('<h3>Leaderboard</h3>'+document.getElementById('leaderboardList').innerHTML);menu.classList.remove('active')})
-    document.getElementById('exportData').addEventListener('click',()=>{const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(demo,null,2));a.download='schoolboard-demo.json';a.click();menu.classList.remove('active')})
-    document.getElementById('resetDemo').addEventListener('click',()=>{if(confirm('Reset demo data?')){localStorage.removeItem('schoolboard_demo');location.reload()}})
+    document.getElementById('exportData').addEventListener('click',()=>{const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(state,null,2));a.download='schoolboard-demo.json';a.click();menu.classList.remove('active')})
+    document.getElementById('discordLink').addEventListener('click',()=>{window.open('https://discord.gg/', '_blank');menu.classList.remove('active')})
+    document.getElementById('discordFooter').addEventListener('click',()=>{window.open('https://discord.gg/', '_blank')})
+
+    // Clear all history
+    document.getElementById('clearAll').addEventListener('click',()=>{if(confirm('Clear all demo data and history? This will reset to defaults.')){localStorage.removeItem(STORAGE_KEY);state = loadState(); applyTheme(); renderDashboard(); renderGradebook(); renderAssignments(); renderMessages(); renderAttendance(); alert('All demo data cleared')}; menu.classList.remove('active')})
 
     // Quick actions
-    document.getElementById('newAssignment').addEventListener('click',()=>{openModal(`<h3>Create Assignment</h3><div class='row' style='margin-top:8px'><input id='naTitle' placeholder='Title' class='flex'/></div><div class='row' style='margin-top:8px'><input id='naClass' placeholder='Class' /></div><div style='margin-top:8px' class='small-muted'>Due date (YYYY-MM-DD)</div><div style='margin-top:8px'><input id='naDue' placeholder='2025-10-20' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='createAssignConfirm'>Create</button></div>`); document.getElementById('createAssignConfirm').addEventListener('click',()=>{const t=document.getElementById('naTitle').value||'Untitled';const c=document.getElementById('naClass').value||'General';const d=document.getElementById('naDue').value||new Date().toISOString().slice(0,10);demo.assignments.push({id:Date.now(),title:t,class:c,due:d,status:'open'});save();document.getElementById('modalBg').classList.remove('active');renderAssignments();renderDashboard()})})
+    document.getElementById('newAssignment').addEventListener('click',()=>{openModal(`<h3>Create Assignment</h3><div class='row' style='margin-top:8px'><input id='naTitle' placeholder='Title' class='flex'/></div><div class='row' style='margin-top:8px'><input id='naClass' placeholder='Class' /></div><div style='margin-top:8px' class='small-muted'>Due date (YYYY-MM-DD)</div><div style='margin-top:8px'><input id='naDue' placeholder='2025-10-20' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='createAssignConfirm'>Create</button></div>`); document.getElementById('createAssignConfirm').addEventListener('click',()=>{const t=document.getElementById('naTitle').value||'Untitled';const c=document.getElementById('naClass').value||'General';const d=document.getElementById('naDue').value||new Date().toISOString().slice(0,10);state.assignments.push({id:Date.now(),title:t,class:c,due:d,status:'open'});saveState(); sendLiveUpdate('assignment_created');document.getElementById('modalBg').classList.remove('active');renderAssignments();renderDashboard()})})
 
-    document.getElementById('messageTeacher').addEventListener('click',()=>{openModal(`<h3>New Message</h3><div style='margin-top:8px'><input id='mSub' placeholder='Subject' class='flex' /></div><div style='margin-top:8px'><textarea id='mBody' rows=6 style='width:100%;background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit'></textarea></div><div style='margin-top:8px;text-align:right'><button class='btn' id='sendMsg'>Send</button></div>`); document.getElementById('sendMsg').addEventListener('click',()=>{const s=document.getElementById('mSub').value||'No subject';const b=document.getElementById('mBody').value||'';demo.messages.push({id:Date.now(),from:demo.users[0].name,subject:s,body:b,date:new Date().toISOString().slice(0,10)});save();document.getElementById('modalBg').classList.remove('active');renderMessages();renderDashboard()})})
+    document.getElementById('messageTeacher').addEventListener('click',()=>{openModal(`<h3>New Message</h3><div style='margin-top:8px'><input id='mSub' placeholder='Subject' class='flex' /></div><div style='margin-top:8px'><textarea id='mBody' rows=6 style='width:100%;background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px;border-radius:8px;color:inherit'></textarea></div><div style='margin-top:8px;text-align:right'><button class='btn' id='sendMsg'>Send</button></div>`); document.getElementById('sendMsg').addEventListener('click',()=>{const s=document.getElementById('mSub').value||'No subject';const b=document.getElementById('mBody').value||'';const currentUser = state.users && state.users[0] ? state.users[0].name : 'Student';state.messages.push({id:Date.now(),from:currentUser,subject:s,body:b,date:new Date().toISOString().slice(0,10)});saveState();sendLiveUpdate('message_sent');document.getElementById('modalBg').classList.remove('active');renderMessages();renderDashboard()})})
 
     // Attendance
-    document.getElementById('markPresent').addEventListener('click',()=>{demo.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});save();renderAttendance();renderDashboard()})
-    document.getElementById('togglePresence').addEventListener('click',()=>{demo.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});save();renderAttendance();renderDashboard();alert('Marked present for today')})
+    document.getElementById('markPresent').addEventListener('click',()=>{state.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});saveState();sendLiveUpdate('attendance');renderAttendance();renderDashboard()})
+    document.getElementById('togglePresence').addEventListener('click',()=>{state.attendance.push({date:new Date().toISOString().slice(0,10),status:'Present'});saveState();sendLiveUpdate('attendance');renderAttendance();renderDashboard();alert('Marked present for today')})
 
     // Compose & create
     document.getElementById('composeBtn').addEventListener('click',()=>document.getElementById('messageTeacher').click());
     document.getElementById('createAssignmentBtn').addEventListener('click',()=>document.getElementById('newAssignment').click());
 
     // Profile
-    document.getElementById('saveProfile').addEventListener('click',()=>{demo.users[0].name=document.getElementById('displayName').value||demo.users[0].name;demo.users[0].role=document.getElementById('roleSelect').value;save();alert('Profile saved');renderDashboard()})
+    document.getElementById('saveProfile').addEventListener('click',()=>{if(!state.users) state.users=[]; state.users[0] = state.users[0] || {}; state.users[0].name=document.getElementById('displayName').value||state.users[0].name; state.users[0].role=document.getElementById('roleSelect').value; saveState(); alert('Profile saved');renderDashboard()})
 
-    // Login (mock)
-    document.getElementById('loginBtn').addEventListener('click',()=>{openModal(`<h3>Demo Login</h3><div style='margin-top:8px'><input id='loginName' placeholder='Name' class='flex' /></div><div style='margin-top:8px'><select id='loginRole'><option>Student</option><option>Teacher</option><option>Parent</option></select></div><div style='margin-top:12px;text-align:right'><button class='btn' id='doLogin'>Enter</button></div>`);document.getElementById('doLogin').addEventListener('click',()=>{const n=document.getElementById('loginName').value||'Alex Student';const r=document.getElementById('loginRole').value;demo.users[0].name=n;demo.users[0].role=r;document.getElementById('avatar').textContent=n.split(' ').map(s=>s[0]).slice(0,2).join('');save();document.getElementById('modalBg').classList.remove('active');renderDashboard();alert('Logged in as '+n)})})
+    // Login (mock) + Teacher account creation & login
+    document.getElementById('loginBtn').addEventListener('click',()=>{openModal(`<h3>Demo Login</h3><div style='margin-top:8px'><input id='loginName' placeholder='Name' class='flex' /></div><div style='margin-top:8px'><select id='loginRole'><option>Student</option><option>Teacher</option><option>Parent</option></select></div><div style='margin-top:12px;text-align:right'><button class='btn' id='doLogin'>Enter</button></div>`);document.getElementById('doLogin').addEventListener('click',()=>{const n=document.getElementById('loginName').value||'Alex Student';const r=document.getElementById('loginRole').value; // if teacher role and teacher accounts exist, attempt teacher login
+      if(r==='Teacher'){ openModal(`<h3>Teacher Login</h3><div style='margin-top:8px'><input id='tUser' placeholder='username' class='flex' /></div><div style='margin-top:8px'><input id='tPass' placeholder='password' type='password' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='doTeacherLogin'>Login</button></div>`); document.getElementById('doTeacherLogin').addEventListener('click',()=>{const u=document.getElementById('tUser').value; const p=document.getElementById('tPass').value; const t = state.teachers.find(x=>x.username===u && x.password===p); if(t){state.currentTeacher=t; saveState(); sendLiveUpdate('teacher_login'); document.getElementById('modalBg').classList.remove('active'); alert('Teacher logged in: '+t.display); renderTeacherPanel();} else { alert('Invalid teacher credentials') } }) } else { // normal student/parent login
+        state.users = state.users || [{id:1,name:n,gpa:3.8}]; state.users[0].name=n; saveState(); document.getElementById('modalBg').classList.remove('active'); renderDashboard(); alert('Logged in as '+n)} })})
+
+    // Teacher account creation
+    document.getElementById('teacherCreateAccount').addEventListener('click',()=>{openModal(`<h3>Create Teacher Account</h3><div style='margin-top:8px'><input id='newTUser' placeholder='username' class='flex' /></div><div style='margin-top:8px'><input id='newTDisplay' placeholder='Display name' /></div><div style='margin-top:8px'><input id='newTPass' placeholder='password' type='password' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='createTeacherConfirm'>Create</button></div>`); document.getElementById('createTeacherConfirm').addEventListener('click',()=>{const u=document.getElementById('newTUser').value; const d=document.getElementById('newTDisplay').value||u; const p=document.getElementById('newTPass').value||'pass'; if(!u){alert('Username required');return} if(!state.teachers) state.teachers=[]; state.teachers.push({id:Date.now(),username:u,display:d,password:p}); saveState(); sendLiveUpdate('teacher_created'); document.getElementById('modalBg').classList.remove('active'); alert('Teacher account created: '+d)})})
+
+    document.getElementById('teacherLoginBtn').addEventListener('click',()=>{openModal(`<h3>Teacher Login</h3><div style='margin-top:8px'><input id='tUser2' placeholder='username' class='flex' /></div><div style='margin-top:8px'><input id='tPass2' placeholder='password' type='password' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='doTeacherLogin2'>Login</button></div>`); document.getElementById('doTeacherLogin2').addEventListener('click',()=>{const u=document.getElementById('tUser2').value; const p=document.getElementById('tPass2').value; const t = state.teachers.find(x=>x.username===u && x.password===p); if(t){state.currentTeacher=t; saveState(); sendLiveUpdate('teacher_login'); document.getElementById('modalBg').classList.remove('active'); alert('Teacher logged in: '+t.display); renderTeacherPanel();} else { alert('Invalid teacher credentials') } })})
+
+    // Teacher can add grades
+    document.getElementById('teacherNewGrade').addEventListener('click',()=>{openModal(`<h3>Add Grade</h3><div style='margin-top:8px'><input id='gStudent' placeholder='Student name' class='flex' /></div><div style='margin-top:8px'><input id='gClass' placeholder='Class' /></div><div style='margin-top:8px'><input id='gItem' placeholder='Assignment' /></div><div style='margin-top:8px'><input id='gScore' placeholder='Score' /></div><div style='margin-top:8px'><input id='gOutOf' placeholder='Out Of' value='100' /></div><div style='margin-top:12px;text-align:right'><button class='btn' id='createGradeConfirm'>Add</button></div>`); document.getElementById('createGradeConfirm').addEventListener('click',()=>{const s=document.getElementById('gStudent').value||'Student'; const cls=document.getElementById('gClass').value||'General'; const it=document.getElementById('gItem').value||'Item'; const sc=parseFloat(document.getElementById('gScore').value)||0; const out=parseFloat(document.getElementById('gOutOf').value)||100; state.grades.push({id:Date.now(),class:cls,item:it,score:sc,outOf:out,date:new Date().toISOString().slice(0,10)}); saveState(); sendLiveUpdate('grade_added'); document.getElementById('modalBg').classList.remove('active'); renderGradebook(); renderDashboard(); alert('Grade added')})})
+
+    // Teacher edit assignments view
+    document.getElementById('teacherEditAssignments').addEventListener('click',()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); document.querySelector('[data-view=assignments]').classList.add('active'); showView('assignments'); openModal('<h3>Edit assignments: click an assignment to edit</h3>')})
+
+    // Helper: escapeHtml
+    function escapeHtml(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
 
     // Search
-    document.getElementById('globalSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase(); if(q.length<1) return; const foundGrades=demo.grades.filter(g=>g.class.toLowerCase().includes(q)||g.item.toLowerCase().includes(q)); openModal('<h3>Search results</h3>'+foundGrades.map(g=>`<div class="small-muted">${g.class} • ${g.item} • ${formatPercent(g.score,g.outOf)}</div>`).join(''))})
+    document.getElementById('globalSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase(); if(q.length<1) return; const foundGrades=state.grades.filter(g=>g.class.toLowerCase().includes(q)||g.item.toLowerCase().includes(q)); openModal('<h3>Search results</h3>'+foundGrades.map(g=>`<div class="small-muted">${g.class} • ${g.item} • ${formatPercent(g.score,g.outOf)}</div>`).join(''))})
 
-    // Init
+    // Realtime-ish: use storage event so multiple tabs update each other
+    function sendLiveUpdate(type){ try{ localStorage.setItem(STORAGE_KEY+'_last_update', JSON.stringify({type,ts:Date.now()})); }catch(e){} }
+    window.addEventListener('storage', (e)=>{ if(e.key===STORAGE_KEY || e.key===STORAGE_KEY+'_last_update'){ state = loadState(); // reload state when changed in other tab
+        renderDashboard(); renderGradebook(); renderAssignments(); renderMessages(); renderAttendance(); renderTeacherPanel(); } })
+
+    // small periodic refresh to simulate live dashboard (also helps if something else changes state)
+    setInterval(()=>{ renderDashboard(); renderGradebook(); renderAssignments(); renderMessages(); renderAttendance(); }, 4000)
+
+    // init
     renderDashboard(); renderGradebook(); renderAssignments(); renderMessages(); renderAttendance();
+
+    // Expose some functions for inline onclicks
+    window.editAssignment = window.editAssignment;
+    window.submitAssignment = window.submitAssignment;
+    window.openMessage = window.openMessage;
+    window.editGrade = window.editGrade;
+    window.deleteGrade = window.deleteGrade;
+
   </script>
 </body>
 </html>
